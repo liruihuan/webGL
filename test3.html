@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <span v-for="(item,index) in newTableData"  :key="index">{{item}}</span>
+    </div>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                newTableData: [],
+                tableData: [{
+                    accManageDate: "24日",
+                    accPayDate: "16日",
+                    annuityExtractDate: "18日",
+                    annuityWriteDate: "22日",
+                    id: "bbb5eca6932b4e2ea4cb18248dbbc3f0",
+                    insureDate: "3日",
+                    masterId: "d459913bc3c04bc4a6430662e7ea61eb",
+                    month: "1月",
+                    paymentPlanDate: "7日",
+                    paymentWithholdDate: "8日",
+                    priceDateOne: "1日",
+                    priceDateThree: null,
+                    priceDateTwo: "14日",
+                    remark: "修改定价日1",
+                    reservedFieldOne: null,
+                    reservedFieldTwo: null,
+                    sysApproveDate: "5日",
+                    treatmentPaymentDate: null,
+                    ts: "2020-04-28 20:06:06",
+                    version: 1,
+                    year: "2022"
+                },
+                {
+                    accManageDate: "24日",
+                    accPayDate: "16日",
+                    annuityExtractDate: "18日",
+                    annuityWriteDate: "22日",
+                    id: "1ed28375bbe64350b31aeba9942c91e3",
+                    insureDate: "3日",
+                    masterId: "d459913bc3c04bc4a6430662e7ea61eb",
+                    month: "2月",
+                    paymentPlanDate: "7日",
+                    paymentWithholdDate: "8日",
+                    priceDateOne: "2日",
+                    priceDateThree: null,
+                    priceDateTwo: "14日",
+                    remark: "修改22单独的&*（）",
+                    reservedFieldOne: null,
+                    reservedFieldTwo: null,
+                    sysApproveDate: "5日",
+                    treatmentPaymentDate: null,
+                    ts: "2020-04-28 20:06:06",
+                    version: 1,
+                    year: "2022"
+                },
+                ],
+                configTableData: [
+                    {
+                        criticalRunplanOptions: "月份",
+                        criticalRunplanOptionsValue: "month",
+                        id: "1506f7b1c9b643eaa1b8618f3727450f",
+                        indexNo: "01",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "账户管理费核算日",
+                        criticalRunplanOptionsValue: "accManageDate",
+                        id: "d84af8fcd0764e088163aeba251d8890",
+                        indexNo: "02",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "待遇支付回写日",
+                        criticalRunplanOptionsValue: "treatmentPaymentDate",
+                        id: "8e7ed7628b9944ed8acff1f720ac2f8e",
+                        indexNo: "03",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "定价日1",
+                        criticalRunplanOptionsValue: "priceDateOne",
+                        id: "257fdb93fa244bea97f9babe2ad731d1",
+                        indexNo: "04",
+                        priceDateStatus: "1",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "系统提交特殊业务审批完成截止日",
+                        criticalRunplanOptionsValue: "sysApproveDate",
+                        id: "c3fe9a9d646a41ad9d8086cde0df938c",
+                        indexNo: "05",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "账户支付通知数据集团公司提取日",
+                        criticalRunplanOptionsValue: "accPayDate",
+                        id: "f5bd72bdf7bf4d5aad0da479c975cfe3",
+                        indexNo: "06",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "过渡年金信息数据集团公司提取日",
+                        criticalRunplanOptionsValue: "annuityExtractDate",
+                        id: "b5fd0cfb460046aeb2ded4f002d1690a",
+                        indexNo: "07",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "缴费计划提交截止日",
+                        criticalRunplanOptionsValue: "paymentPlanDate",
+                        id: "89b5b16c7f054f7a90b1e8a4e56bd128",
+                        indexNo: "08",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "过渡年金信息数据集团公司回写日",
+                        criticalRunplanOptionsValue: "annuityWriteDate",
+                        id: "b0ef7131060b44f28485a2314aa39b32",
+                        indexNo: "09",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "企业年金缴费扣款日",
+                        criticalRunplanOptionsValue: "paymentWithholdDate",
+                        id: "58982774cda04b2186379b0f0c69f40f",
+                        indexNo: "10",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "定价日2",
+                        criticalRunplanOptionsValue: "priceDateTwo",
+                        id: "d55dfd02051f4e5cb94b47e5c1056f29",
+                        indexNo: "11",
+                        priceDateStatus: "1",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "过渡年金投保日",
+                        criticalRunplanOptionsValue: "insureDate",
+                        id: "107c11fd41994551a2251b31b6471780",
+                        indexNo: "12",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    },
+                    {
+                        criticalRunplanOptions: "备注",
+                        criticalRunplanOptionsValue: "remark",
+                        id: "7d4163830fb342f5a6bd653937838ff5",
+                        indexNo: "13",
+                        priceDateStatus: "0",
+                        ts: "2020-12-22 14:01:46",
+                        validStatus: "1",
+                        version: 1,
+                        year: "2022"
+                    }
+                ]
+
+            }
+        },
+        created() {
+            this.tableData.forEach(element => {
+                const obj = {}
+                this.configTableData.forEach(k => {
+                    Object.keys(element).forEach(l => {
+                        if (k.criticalRunplanOptionsValue == l) {
+                            obj[l] = element[l]
+                        }
+                    })
+                })
+                this.newTableData.push(obj)
+            });
+           
+        }
+
+    })
+</script>
+
+</html>

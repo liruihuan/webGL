@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            background: url("./images/bg.gif") center;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+
+</head>
+
+<body>
+    <script src="./js/three.js"></script>
+    <script src="./js/OrbitControls.js"></script>
+
+
+    <script>
+        let camera, scene, renderer, geometry, material, controls, light; //常用变量
+        let cube, INTERSECTED, DIRECTION, raycaster = new THREE.Raycaster(), mouse = new THREE.Vector2(), box3, helper, arrowHelper; //自定义对象变量
+
+
+        init();
+
+
+
+        function init() {
+            //渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })  //去锯齿;
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            //场景
+            scene = new THREE.Scene();
+            // scene.background = new THREE.Color(0xcfcfcf);
+            //相机
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 10);
+            camera.lookAt(scene.position);
+
+            // 环境光
+            const ambientLight = new THREE.AmbientLight(0x606060);
+            scene.add(ambientLight);
+            // 平行光
+            light = new THREE.DirectionalLight(0xffffff, 1);
+            light.position.copy(camera.position)
+
+            scene.add(light);
+
+
+            geometry = new THREE.Geometry();
+            material = new THREE.MeshLambertMaterial({
+                color: 0x719cff,
+                wireframe: false
+            });
+
+            //下圆柱
+            const { height: bottomHeight, cube: bottomCube } = new ParseCylinderGeometry(1, 1, 1, 64),
+                //上圆柱
+                { height: topHeight, cube: topCube } = new ParseCylinderGeometry(.5, .5, 2, 64);
+            bottomCube.updateMatrix();
+            geometry.merge(bottomCube.geometry, bottomCube.matrix);
+
+            topCube.position.y = Math.abs(bottomHeight - topHeight) / 2 + bottomHeight; //球体网格模型沿Y轴正方向平移
+            topCube.updateMatrix();//这个用来把合并前的变换矩阵带进geometry保证对象合并后正确的变换
+            geometry.merge(topCube.geometry, topCube.matrix);
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+
+            // 线框包围盒
+            box3 = new THREE.Box3();
+            box3.setFromObject(cube)
+
+            helper = new THREE.Box3Helper(box3, 0xffff00);
+            scene.add(helper);
+
+
+            //辅助线
+            const axesHelper = new THREE.AxesHelper(3);
+            scene.add(axesHelper);
+
+
+            drawArrowHelper()
+            renderer.render(scene, camera);
+
+
+        }
+        //绘制圆柱
+        function ParseCylinderGeometry(radiusTop, radiusBottom, height, radialSegments) {
+            //   radiusTop — 圆柱的顶部半径，默认值是1。
+            // radiusBottom — 圆柱的底部半径，默认值是1。
+            // height — 圆柱的高度，默认值是1。
+            // radialSegments — 圆柱侧面周围的分段数，默认为8。          
+            this.radiusTop = (radiusTop !== undefined) ? radiusTop : 1;
+            this.radiusBottom = (radiusBottom !== undefined) ? radiusBottom : 1;
+            this.height = (height !== undefined) ? height : 1;
+            this.radialSegments = (radialSegments !== undefined) ? radialSegments : 8;
+            this.cylinderGeometry = new THREE.CylinderGeometry(this.radiusTop, this.radiusBottom, this.height, this.radialSegments);
+            //材质
+            this.material = new THREE.MeshBasicMaterial();
+            this.cube = new THREE.Mesh(this.cylinderGeometry, this.material);
+
+        }
+        //绘制箭头 构造函数
+        function ParseArrowHelper(helper) {
+            const box3Min = helper.box.min, box3Max = helper.box.max;
+            const {
+                upX,
+                upY,
+                upZ,
+                downX,
+                downY,
+                downZ,
+                rightX,
+                rightY,
+                rightZ,
+                leftX,
+                leftY,
+                leftZ,
+                frontX,
+                frontY,
+                frontZ,
+                backX,
+                backY,
+                backZ
+            } = {
+                upX: (box3Max.x + box3Min.x) / 2,
+                upY: box3Max.y,
+                upZ: (box3Max.z + box3Min.z) / 2,
+                downX: (box3Max.x + box3Min.x) / 2,
+                downY: box3Min.y,
+                downZ: (box3Max.z + box3Min.z) / 2,
+                rightX: box3Max.x,
+                rightY: (box3Max.y + box3Min.y) / 2,
+                rightZ: (box3Max.z + box3Min.z) / 2,
+                leftX: box3Min.x,
+                leftY: (box3Max.y + box3Min.y) / 2,
+                leftZ: (box3Max.z + box3Min.z) / 2,
+                frontX: (box3Max.x + box3Min.x) / 2,
+                frontY: (box3Max.y + box3Min.y) / 2,
+                frontZ: box3Max.z,
+                backX: (box3Max.x + box3Min.x) / 2,
+                backY: (box3Max.y + box3Min.y) / 2,
+                backZ: box3Min.z
+            };
+            this.array = [
+                { x: upX, y: upY, z: upZ },
+                { x: rightX, y: rightY, z: rightZ },
+                { x: downX, y: downY, z: downZ },
+                { x: leftX, y: leftY, z: leftZ },
+                { x: frontX, y: frontY, z: frontZ },
+                { x: backX, y: backY, z: backZ },
+            ];
+            const endArrow = 2;
+            this.direction = [
+                { "origin": new THREE.Vector3(upX, upY, upZ), "axis": new THREE.Vector3(0, endArrow, 0), "color": "green" },//up
+                { "origin": new THREE.Vector3(rightX, rightY, rightZ), "axis": new THREE.Vector3(endArrow, 0, 0), "color": "red" },//right
+                { "origin": new THREE.Vector3(downX, downY, downZ), "axis": new THREE.Vector3(0, -endArrow, 0), "color": "green" },//down
+                { "origin": new THREE.Vector3(leftX, leftY, leftZ), "axis": new THREE.Vector3(-endArrow, 0, 0), "color": "red" },//left
+                { "origin": new THREE.Vector3(frontX, frontY, frontZ), "axis": new THREE.Vector3(0, 0, endArrow), "color": "blue" },//front
+                { "origin": new THREE.Vector3(backX, backY, backZ), "axis": new THREE.Vector3(0, 0, -endArrow), "color": "blue" }, //backs
+            ]
+
+
+        }
+        function translateArrowHelper() {
+            const { array } = new ParseArrowHelper(helper);
+
+            objects.forEach((element, i) => {
+                array.forEach((el, j) => {
+                    if (i === j) {
+                        element.parent.position.x = el.x
+                        element.parent.position.y = el.y
+                        element.parent.position.z = el.z
+                    }
+                })
+
+            })
+
+        }
+        function drawArrowHelper() {
+
+            const { direction } = new ParseArrowHelper(helper);
+            direction.forEach(element => {
+                element.axis.normalize();
+                arrowHelper = new THREE.ArrowHelper(element.axis, element.origin, .5, element.color, .2, .2);
+
+                scene.add(arrowHelper);
+
+
+            });
+        }
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        let xStart = xEnd = yStart = yEnd = null;
+
+        document.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+            xStart = event.clientX;
+            yStart = event.clientY;
+
+
+
+        });
+        document.addEventListener('mouseup', (event) => {
+            event.preventDefault();
+            xStart = xEnd = yStart = yEnd = null;
+
+        });
+        let rotationAngle = 0;
+        document.addEventListener('mousemove', event => {
+            event.preventDefault();
+            // 通过鼠标点击位置,计算出 raycaster 所需点的位置,以屏幕为中心点,范围 -1 到 1
+            mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+            mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+            render()
+            xEnd = event.clientX;
+            yEnd = event.clientY;
+            if (!INTERSECTED || xStart == null) return;
+
+            const xStartWorldAxis = (xStart / renderer.domElement.clientWidth) * 2 - 1,
+                xEndWorldAxis = (xEnd / renderer.domElement.clientWidth) * 2 - 1,
+                yStartWorldAxis = (yStart / renderer.domElement.clientHeight) * 2 - 1,
+                yEndWorldAxis = (yEnd / renderer.domElement.clientHeight) * 2 - 1,
+                xMovedDistance = xStartWorldAxis - xEndWorldAxis,
+                yMovedDistance = yStartWorldAxis - yEndWorldAxis,
+                xWorldAxisMovedDistance = xMovedDistance * 4,
+                yWorldAxisMovedDistance = yMovedDistance * 4;
+            switch (DIRECTION) {
+                //DIRECTION 0=top 1=right 2=down 3=left 4=front 5=back  
+                case 0:
+                    helper.box.max.y += yWorldAxisMovedDistance
+                    if (helper.box.max.y <= helper.box.min.y) {
+                        helper.box.max.y = helper.box.min.y
+                    }
+                    break;
+                case 1:
+                    if (Math.abs(rotationAngle) > 90) {
+                        helper.box.max.x += xWorldAxisMovedDistance
+                    } else {
+                        helper.box.max.x -= xWorldAxisMovedDistance
+                    }
+                    if (helper.box.max.x <= helper.box.min.x) {
+                        helper.box.max.x = helper.box.min.x
+                    }
+                    break;
+                case 2:
+                    helper.box.min.y += yWorldAxisMovedDistance
+                    if (helper.box.min.y >= helper.box.max.y) {
+                        helper.box.min.y = helper.box.max.y
+                    }
+                    break;
+                case 3:
+                    if (Math.abs(rotationAngle) > 90) {
+                        helper.box.min.x += xWorldAxisMovedDistance
+                    } else {
+                        helper.box.min.x -= xWorldAxisMovedDistance
+                    }
+                    if (helper.box.min.x >= helper.box.max.x) {
+                        helper.box.min.x = helper.box.max.x
+                    }
+                    break;
+                case 4:
+                    if (0 < rotationAngle && rotationAngle < 160) {
+                        helper.box.max.z += xWorldAxisMovedDistance
+                    }
+                    if (rotationAngle < 0) {
+                        helper.box.max.z -= xWorldAxisMovedDistance
+                    }
+                    if (helper.box.max.z <= helper.box.min.z) {
+                        helper.box.max.z = helper.box.min.z
+                    }
+                    break;
+                case 5:
+                    if (0 < rotationAngle && rotationAngle < 160) {
+                        helper.box.min.z += xWorldAxisMovedDistance
+                    }
+                    if (rotationAngle < 0) {
+                        helper.box.min.z -= xWorldAxisMovedDistance
+                    }
+                    if (helper.box.min.z >= helper.box.max.z) {
+                        helper.box.min.z = helper.box.max.z
+                    }
+                    break;
+            }
+            xStart = xEnd;
+            yStart = yEnd;
+            helper.updateMatrixWorld()
+            translateArrowHelper()
+
+            renderer.render(scene, camera);
+
+
+
+        }, false);
+
+
+
+
+        //切记  添加的数据一定要是想要点击的最小单位  不然会有误差
+        let objects = []
+        scene.children.forEach(child => {
+            if (child instanceof THREE.ArrowHelper) {//根据需求判断哪些加入objects,也可以在生成object的时候push进objects
+                objects.push(child.cone)
+            }
+        })
+
+        // 获取与射线相交的对象数组
+        function render() {
+            //通过鼠标点击的位置(二维坐标)和当前相机的矩阵计算出射线位置
+            raycaster.setFromCamera(mouse, camera);
+            // 获取与射线相交的对象数组，其中的元素按照距离排序，越近的越靠前
+            const intersects = raycaster.intersectObjects(objects, true);
+            if (intersects.length > 0) {
+                // console.log(intersects[0].object)
+                if (INTERSECTED != intersects[0].object.parent.cone) {
+                    controls.enabled = false;
+                    document.body.style.cursor = 'pointer';
+                    INTERSECTED = intersects[0].object.parent.cone;
+                    objects.forEach((element, i) => {
+                        if (element.parent.position === intersects[0].object.parent.position) {
+                            DIRECTION = i
+                        }
+                    })
+                }
+
+            } else {
+                controls.enabled = true;
+                document.body.style.cursor = 'auto';
+                DIRECTION = INTERSECTED = null;
+
+            }
+            renderer.render(scene, camera);
+
+        }
+
+        //OrbitControls控件操作模块
+        controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        controls.addEventListener('change', function (event) {
+            // console.log("x轴旋转角度:", controls.getAzimuthalAngle() * (180 / Math.PI), "y旋转角度:", controls.getPolarAngle() * (180 / Math.PI))     
+            // console.log ("x轴旋转弧度:",controls.getAzimuthalAngle(),"y旋转弧度:",controls.getPolarAngle())
+            rotationAngle = controls.getAzimuthalAngle() * (180 / Math.PI);
+            // 相机跟随模型
+            light.position.copy(controls.object.position)
+            controls.object.updateProjectionMatrix();
+            renderer.render(scene, camera);
+
+        });
+
+
+
+
+    </script>
+</body>
+
+</html>
